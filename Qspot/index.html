@@ -1,0 +1,1470 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>QuickSpot</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#0f1923;color:#e8eaf0;font-size:16px;height:100vh;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.page{display:none;flex-direction:column;height:100vh;overflow:hidden}
+/* Top bar */
+.tb{background:#1a2535;border-bottom:1px solid #2d3f55;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;min-height:52px;gap:6px}
+.tb h1{font-size:.92rem;font-weight:700;white-space:nowrap}
+.sub{font-size:.68rem;color:#8fa3b8;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:180px}
+.tl{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.tc{flex:1;text-align:center;min-width:0}
+.tr{display:flex;align-items:center;gap:5px;flex-shrink:0}
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:8px 13px;border-radius:8px;border:none;font-size:.83rem;font-weight:600;cursor:pointer;white-space:nowrap}
+.bp{background:#2196f3;color:#fff}
+.bs{background:#243044;color:#e8eaf0;border:1px solid #2d3f55}
+.bg{background:#43a047;color:#fff}
+.bico{background:none;border:none;font-size:1.2rem;cursor:pointer;padding:4px;color:#8fa3b8;line-height:1}
+.bback{background:none;border:none;color:#2196f3;font-size:1.4rem;cursor:pointer;padding:2px 6px;font-weight:700}
+.bsm{padding:6px 10px;border-radius:6px;border:1px solid #2d3f55;background:#243044;color:#e8eaf0;font-size:.78rem;cursor:pointer}
+.fab{position:fixed;bottom:22px;right:18px;width:52px;height:52px;border-radius:50%;background:#2196f3;color:#fff;font-size:1.6rem;border:none;cursor:pointer;z-index:50;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 14px rgba(33,150,243,.5)}
+/* Layout */
+.scroll{flex:1;overflow-y:auto;padding:14px;-webkit-overflow-scrolling:touch}
+/* Step dots */
+.steps{display:flex;align-items:center;gap:4px;padding:6px 14px;background:#1a2535;border-bottom:1px solid #2d3f55;flex-shrink:0}
+.dot{width:7px;height:7px;border-radius:50%;background:#2d3f55}
+.dot.on{background:#2196f3}.dot.done{background:#43a047}
+.slbl{font-size:.7rem;color:#8fa3b8;margin-left:6px}
+/* Cards */
+.card{background:#1a2535;border:1px solid #2d3f55;border-radius:10px;padding:14px;margin-bottom:10px;cursor:pointer;display:flex;align-items:center;justify-content:space-between}
+.card:active{border-color:#2196f3}
+/* Forms */
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.76rem;color:#8fa3b8;margin-bottom:4px;text-transform:uppercase;letter-spacing:.4px}
+.fi,.fsel,.fta{width:100%;background:#243044;border:1px solid #2d3f55;border-radius:8px;color:#e8eaf0;font-size:.93rem;padding:10px 12px;outline:none}
+.fi:focus,.fsel:focus,.fta:focus{border-color:#2196f3}
+.fta{resize:none;line-height:1.5}
+/* Photo grid */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px;overflow-y:auto;flex:1;align-content:start}
+.pthumb{border-radius:8px;overflow:hidden;background:#1a2535;border:1px solid #2d3f55;display:flex;flex-direction:column}
+.pthumb-img{position:relative;aspect-ratio:4/3}
+.pthumb-img img{width:100%;height:100%;object-fit:cover;display:block}
+.plbl{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:.7rem;padding:3px 6px;text-align:center}
+.pdel{position:absolute;top:4px;right:4px;background:rgba(229,57,53,.9);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:.7rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pcap{width:100%;background:#1a2535;border:none;border-top:1px solid #2d3f55;color:#8fa3b8;font-size:.72rem;padding:5px 8px;outline:none;font-family:Arial,sans-serif}
+.pcap:focus{color:#e8eaf0;background:#243044}
+.addbar{padding:12px 16px 16px;background:#0f1923;flex-shrink:0;display:flex;justify-content:center}
+.addbtn{width:60px;height:60px;border-radius:50%;background:#2196f3;border:none;color:#fff;font-size:1.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(33,150,243,.5)}
+/* Canvas */
+.cwrap{flex:1;overflow:hidden;background:#f5f5f5;touch-action:none}
+.dcanvas{display:block;touch-action:none}
+.toolbar{display:flex;gap:6px;padding:7px 12px;background:#1a2535;border-bottom:1px solid #2d3f55;flex-shrink:0;align-items:center;flex-wrap:wrap}
+.tbtn{padding:6px 12px;border-radius:18px;border:1px solid #2d3f55;background:#243044;color:#8fa3b8;font-size:.78rem;cursor:pointer;white-space:nowrap}
+.tbtn.on{background:#2196f3;border-color:#2196f3;color:#fff}
+.ssel{padding:7px 12px;background:#1a2535;border-bottom:1px solid #2d3f55;flex-shrink:0}
+/* Summary rows */
+.sr{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #2d3f55;font-size:.88rem}
+.info{background:rgba(33,150,243,.1);border:1px solid rgba(33,150,243,.3);border-radius:8px;padding:9px 12px;font-size:.78rem;color:#2196f3;margin-bottom:12px;line-height:1.4}
+/* Modals */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;align-items:flex-end}
+.mo.on{display:flex}
+.ms{background:#1a2535;border-radius:18px 18px 0 0;padding:18px 18px 28px;width:100%;max-height:90vh;overflow-y:auto}
+.mh{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.mt{font-size:1rem;font-weight:700}
+.mc{background:none;border:none;color:#8fa3b8;font-size:1.4rem;cursor:pointer}
+.mdiv{height:1px;background:#2d3f55;margin:12px 0}
+/* Records */
+.rc{background:#1a2535;border:1px solid #2d3f55;border-radius:10px;padding:12px;margin-bottom:10px}
+.di{display:flex;align-items:center;justify-content:space-between;padding:9px;background:#243044;border-radius:8px;margin-bottom:7px}
+/* Auto-fill */
+.autofill{background:#162847;border:1px solid #2196f3;border-radius:8px;padding:11px 13px;margin-bottom:12px}
+.autofill .albl{font-size:.72rem;color:#8fa3b8;margin-bottom:3px;text-transform:uppercase}
+.autofill .aval{font-weight:600;font-size:.95rem;color:#e8eaf0}
+/* Toast */
+#toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:rgba(15,25,35,.97);color:#e8eaf0;padding:9px 18px;border-radius:18px;font-size:.83rem;display:none;z-index:999;border:1px solid #2d3f55;white-space:nowrap;pointer-events:none}
+/* Loading */
+#overlay{position:fixed;inset:0;background:#0f1923;z-index:9999;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:14px}
+#overlay p{color:#8fa3b8;font-size:.88rem}
+.spin{width:36px;height:36px;border:3px solid #2d3f55;border-top-color:#2196f3;border-radius:50%;animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+</style>
+</head>
+<body>
+<div id="overlay"><div class="spin"></div><p>Initializing...</p></div>
+<!-- HOME -->
+<div class="page" id="pg-home">
+<div class="tb">
+<div class="tl"><div><h1>🏗 QuickSpot</h1><div class="sub">Spot Issues. Generate Reports.  ·  <span style="color:#2196f3">v39</span></div></div></div>
+<div class="tr"><button class="bico" onclick="showRecords()">📋</button><button class="bico" onclick="openSettings()">⚙️</button></div>
+</div>
+<div class="scroll" id="site-list"></div>
+<button class="fab" onclick="openMo('mo-site')">＋</button>
+</div>
+<!-- PROJECTS -->
+<div class="page" id="pg-proj">
+<div class="tb">
+<button class="bback" onclick="renderSites()">‹</button>
+<div class="tc"><h1 id="proj-title">Projects</h1><div class="sub" id="proj-sub"></div></div>
+<button class="btn bp" onclick="openMo('mo-proj')" style="font-size:.78rem;padding:7px 10px">＋ Project</button>
+</div>
+<div class="scroll" id="proj-list"></div>
+</div>
+<!-- PHOTOS -->
+<div class="page" id="pg-photos">
+<div class="tb">
+<button class="bback" onclick="showPage('pg-proj');renderProjects()">‹</button>
+<div class="tc"><h1>📷 Photos</h1><div class="sub" id="ph-sub"></div></div>
+<div class="tr"><button class="bico" onclick="camClick()" style="font-size:1.4rem">📷</button><button class="btn bp" onclick="goCaption()">Next →</button></div>
+</div>
+<div class="steps"><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="slbl">Step 1/6 · Photos</span></div>
+<div class="pgrid" id="photo-grid"></div>
+<input accept="image/*" capture="environment" id="cam" multiple="" onchange="handleCam(this)" style="display:none" type="file"/>
+<div class="addbar"><button class="addbtn" onclick="camClick()">＋</button></div>
+</div>
+<!-- CAPTIONS -->
+<div id="pg-captions" class="page">
+  <div class="tb">
+    <button class="bback" onclick="showPage('pg-photos')">&#x2039;</button>
+    <div class="tc"><h1>&#x1F4DD; Photo Captions</h1><div class="sub" id="cap-sub"></div></div>
+    <button class="btn bp" onclick="goFloor()">Next &#x2192;</button>
+  </div>
+  <div class="steps"><div class="dot done"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="slbl">Step 2/6 · Captions</span></div>
+  <div class="scroll" id="caption-list"></div>
+</div>
+
+<!-- LOCATION -->
+<div class="page" id="pg-floor">
+<div class="tb">
+<button class="bback" onclick="showPage('pg-captions');renderCaptions()">‹</button>
+<div class="tc"><h1>📍 Location</h1><div class="sub" id="fl-sub"></div></div>
+<button class="btn bp" onclick="goKeyPlan()">Next →</button>
+</div>
+<div class="steps"><div class="dot done"></div><div class="dot done"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="slbl">Step 3/6 · Location</span></div>
+<div class="scroll">
+<div class="fg">
+<label>Select Key Plan Drawing *</label>
+<select class="fsel" id="sel-kp" onchange="onKpSelect()"><option value="">-- Select key plan --</option></select>
+</div>
+<div class="autofill" id="floor-auto" style="display:none">
+<div class="albl">Floor / Location (from drawing)</div>
+<div class="aval" id="floor-auto-val"></div>
+</div>
+<div class="fg" id="floor-manual">
+<label>Floor / Location *</label>
+<input class="fi" id="inp-floor" placeholder="e.g. 1/F, B1, Roof" type="text"/>
+</div>
+<div class="info">💡 Select a Key Plan drawing. Floor will auto-fill if defined in the drawing.</div>
+</div>
+</div>
+<!-- KEY PLAN -->
+<div class="page" id="pg-kp">
+<div class="tb">
+<button class="bback" onclick="showPage('pg-floor')">‹</button>
+<div class="tc"><h1>🗺 Key Plan</h1><div class="sub" id="kp-sub"></div></div>
+<button class="btn bp" onclick="goEnlarged()">Next →</button>
+</div>
+<div class="steps"><div class="dot done"></div><div class="dot done"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div><span class="slbl">Step 3/6 · Key Plan</span></div>
+<div class="toolbar">
+<button class="tbtn on" id="kp-pan" onclick="setTool('kp','pan')">✋ Pan</button>
+<button class="tbtn" id="kp-mark" onclick="setTool('kp','mark')">📍 Mark</button>
+<span style="margin-left:auto;font-size:.68rem;color:#8fa3b8">Pinch=zoom · Mark then tap</span>
+</div>
+<div class="cwrap" id="kp-wrap"><canvas class="dcanvas" id="kp-canvas"></canvas></div>
+</div>
+<!-- ENLARGED PLAN -->
+<div class="page" id="pg-ep">
+<div class="tb">
+<button class="bback" onclick="showPage('pg-kp')">‹</button>
+<div class="tc"><h1>🔍 Enlarged Part Plan</h1><div class="sub" id="ep-sub"></div></div>
+<button class="btn bp" onclick="goSection()">Next →</button>
+</div>
+<div class="steps"><div class="dot done"></div><div class="dot done"></div><div class="dot on"></div><div class="dot"></div><div class="dot"></div><span class="slbl">Step 4/6 · Enlarged Plan (mark defect)</span></div>
+<div class="toolbar">
+<button class="tbtn on" id="ep-pan" onclick="setTool('ep','pan')">✋ Pan</button>
+<button class="tbtn" id="ep-mark" onclick="setTool('ep','mark')">📍 Mark</button>
+<span style="font-size:.68rem;color:#8fa3b8;margin-left:4px">望向：</span>
+<button class="tbtn" id="arr-N" onclick="setArrow(0)">↑N</button>
+<button class="tbtn" id="arr-NE" onclick="setArrow(45)">↗NE</button>
+<button class="tbtn" id="arr-E" onclick="setArrow(90)">→E</button>
+<button class="tbtn" id="arr-SE" onclick="setArrow(135)">↘SE</button>
+<button class="tbtn" id="arr-S" onclick="setArrow(180)">↓S</button>
+<button class="tbtn" id="arr-SW" onclick="setArrow(225)">↙SW</button>
+<button class="tbtn" id="arr-W" onclick="setArrow(270)">←W</button>
+<button class="tbtn" id="arr-NW" onclick="setArrow(315)">↖NW</button>
+</div>
+<div class="cwrap" id="ep-wrap"><canvas class="dcanvas" id="ep-canvas"></canvas></div>
+</div>
+<!-- SECTION -->
+<div class="page" id="pg-sec">
+<div class="tb">
+<button class="bback" onclick="showPage('pg-ep')">‹</button>
+<div class="tc"><h1>📏 Section / Elevation</h1></div>
+<button class="btn bp" onclick="goNotes()">Next →</button>
+</div>
+<div class="steps"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot on"></div><div class="dot"></div><span class="slbl">Step 5/6 · Section/Elevation</span></div>
+<div class="ssel"><select class="fsel" id="sel-sec" onchange="loadSecDraw()"><option value="">-- Select section/elevation (optional) --</option></select></div>
+<div class="toolbar">
+<button class="tbtn on" id="sec-pan" onclick="setTool('sec','pan')">✋ Pan</button>
+<button class="tbtn" id="sec-mark" onclick="setTool('sec','mark')">📍 Mark</button>
+<span style="margin-left:auto;font-size:.68rem;color:#8fa3b8">Pinch=zoom · Mark then tap</span>
+</div>
+<div class="cwrap" id="sec-wrap"><canvas class="dcanvas" id="sec-canvas"></canvas></div>
+</div>
+<!-- NOTES -->
+<div class="page" id="pg-notes">
+<div class="tb">
+<button class="bback" onclick="showPage('pg-sec')">‹</button>
+<div class="tc"><h1>📝 Issue Notes</h1><div class="sub" id="notes-sub"></div></div>
+<button class="btn bg" onclick="saveDefect()">Generate</button>
+</div>
+<div class="steps"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot on"></div><span class="slbl">Step 6/6 · Notes</span></div>
+<div class="scroll">
+<div class="sr"><span style="color:#8fa3b8">Floor</span><span id="notes-floor" style="font-weight:600"></span></div>
+<div class="sr" style="margin-bottom:12px"><span style="color:#8fa3b8">Photos</span><span id="notes-count" style="font-weight:600"></span></div>
+<div class="fg"><label>Description *</label><textarea class="fta" id="inp-desc" placeholder="Describe the issue. e.g. Dirty, stained. Need to be cleaned with WD-40." rows="5"></textarea></div>
+<div class="info">💡 Tap "Generate" to save and download the Word report.</div>
+</div>
+</div>
+<!-- RECORDS -->
+<div class="page" id="pg-records">
+<div class="tb">
+<button class="bback" onclick="renderSites()">‹</button>
+<div class="tc"><h1>📋 All Issues</h1></div>
+<div class="tr"></div>
+</div>
+<div class="scroll" id="records-list"></div>
+</div>
+<!-- MODAL: Add Site -->
+<div class="mo" id="mo-site" onclick="if(event.target===this)closeMo('mo-site')">
+<div class="ms" onclick="event.stopPropagation()">
+<div class="mh"><span class="mt">Add New Site</span><button class="mc" onclick="closeMo('mo-site')">✕</button></div>
+<div class="fg"><label>Site Name *</label><input class="fi" id="inp-site-name" placeholder="e.g. MEGA IDC" type="text"/></div>
+<div class="fg"><label>Description (optional)</label><input class="fi" id="inp-site-desc" placeholder="e.g. Tower B" type="text"/></div>
+<button class="btn bp" onclick="submitSite()" style="width:100%">Add Site</button>
+</div>
+</div>
+<!-- MODAL: Add Project -->
+<div class="mo" id="mo-proj" onclick="if(event.target===this)closeMo('mo-proj')">
+<div class="ms" onclick="event.stopPropagation()">
+<div class="mh"><span class="mt">Add New Project</span><button class="mc" onclick="closeMo('mo-proj')">✕</button></div>
+<div class="fg"><label>Project Name *</label><input class="fi" id="inp-proj-name" placeholder="e.g. Phase 1 Inspection" type="text"/></div>
+<div class="fg"><label>Description (optional)</label><input class="fi" id="inp-proj-desc" placeholder="e.g. Block A, Level 1-5" type="text"/></div>
+<button class="btn bp" onclick="submitProject()" style="width:100%">Add Project</button>
+</div>
+</div>
+<!-- MODAL: Drawings -->
+<div class="mo" id="mo-draw" onclick="if(event.target===this)closeMo('mo-draw')">
+<div class="ms" onclick="event.stopPropagation()">
+<div class="mh"><span class="mt">📐 Drawings — <span id="draw-site-name"></span></span><button class="mc" onclick="closeMo('mo-draw')">✕</button></div>
+<div id="drawings-list"></div>
+<div class="mdiv"></div>
+<p style="font-size:.78rem;font-weight:700;color:#8fa3b8;margin-bottom:10px;text-transform:uppercase">Upload New Drawing</p>
+<div class="fg"><label>Drawing Name *</label><input class="fi" id="inp-draw-name" placeholder="e.g. 1/F Key Plan" type="text"/></div>
+<div class="fg"><label>Type *</label>
+<select class="fsel" id="inp-draw-type">
+<option value="plan">🗺 Key Plan (Floor Plan)</option>
+<option value="section">📏 Section / Elevation</option>
+</select>
+</div>
+<div class="fg"><label>Floor (optional)</label><input class="fi" id="inp-draw-floor" placeholder="e.g. 1/F, B1" type="text"/></div>
+<div class="fg">
+<label>Image File (JPG / PNG) *</label>
+<input accept="image/jpeg,image/png,image/webp" class="fi" id="inp-draw-file" style="padding:8px" type="file"/>
+<p style="font-size:.7rem;color:#8fa3b8;margin-top:3px">Max 5MB. Convert PDF to JPG first.</p>
+</div>
+<button class="btn bp" onclick="uploadDraw()" style="width:100%">⬆ Upload Drawing</button>
+</div>
+</div>
+<!-- MODAL: Settings -->
+<div class="mo" id="mo-settings" onclick="if(event.target===this)closeMo('mo-settings')">
+<div class="ms" onclick="event.stopPropagation()">
+<div class="mh"><span class="mt">⚙️ Settings</span><button class="mc" onclick="closeMo('mo-settings')">✕</button></div>
+<div class="fg"><label>Inspector Name *</label><input class="fi" id="inp-inspector" placeholder="Your full name" type="text"/></div>
+<div class="mdiv"></div>
+<p style="font-size:.78rem;font-weight:700;color:#8fa3b8;margin-bottom:10px;text-transform:uppercase">Record Number</p>
+<div class="fg"><label>Prefix</label><input class="fi" id="inp-prefix" maxlength="20" oninput="updatePreview()" placeholder="DIRS" type="text"/></div>
+<div class="fg"><label>Next Sequence No.</label><input class="fi" id="inp-seqno" min="1" oninput="updatePreview()" placeholder="1" type="number"/></div>
+<p style="font-size:.7rem;color:#8fa3b8;margin-bottom:12px">Preview: <span id="seq-preview" style="color:#2196f3;font-weight:600"></span></p>
+    <div class="mdiv"></div>
+    <p style="font-size:.78rem;font-weight:700;color:#8fa3b8;margin-bottom:10px;text-transform:uppercase">Report Heading Colour</p>
+    <div class="fg">
+      <label>Heading Background Colour</label>
+      <div style="display:flex;align-items:center;gap:12px">
+        <input type="color" id="inp-hdr-color" value="#FFC000" style="width:52px;height:40px;border:1px solid #2d3f55;border-radius:8px;background:#243044;cursor:pointer;padding:2px">
+        <span id="hdr-color-preview" style="flex:1;height:40px;border-radius:8px;border:1px solid #2d3f55;display:flex;align-items:center;justify-content:center;font-size:.82rem;font-weight:600;color:#000">Preview</span>
+      </div>
+      <p style="font-size:.7rem;color:#8fa3b8;margin-top:4px">Default: orange #FFC000. Applied to all heading rows in Word report.</p>
+    </div>
+<div class="mdiv"></div>
+<p style="font-size:.78rem;font-weight:700;color:#8fa3b8;margin-bottom:10px;text-transform:uppercase">Report Header Image</p>
+<div id="hdr-preview" style="display:none;margin-bottom:8px">
+<img id="hdr-thumb" style="max-width:100%;max-height:60px;border-radius:6px;border:1px solid #2d3f55;object-fit:contain"/>
+<button onclick="clearHdr()" style="display:block;margin-top:5px;background:none;border:none;color:#e53935;cursor:pointer;font-size:.78rem">✕ Remove</button>
+</div>
+<div class="fg">
+<label>Upload Header Image (optional)</label>
+<input accept="image/jpeg,image/png,image/webp" class="fi" id="inp-hdr" style="padding:8px" type="file"/>
+<p style="font-size:.7rem;color:#8fa3b8;margin-top:3px">Max 170mm × 30mm in report.</p>
+</div>
+<div class="mdiv"></div>
+<p style="font-size:.78rem;font-weight:700;color:#8fa3b8;margin-bottom:10px;text-transform:uppercase">Export / Import</p>
+<div style="display:flex;gap:8px;margin-bottom:8px">
+<button class="btn bs" onclick="exportData()" style="flex:1;font-size:.8rem">⬇ Export</button>
+<button class="btn bs" onclick="document.getElementById('inp-import').click()" style="flex:1;font-size:.8rem">⬆ Import</button>
+</div>
+<input accept=".json" id="inp-import" onchange="importData(this)" style="display:none" type="file"/>
+<p style="font-size:.7rem;color:#8fa3b8;margin-bottom:12px">Export/Import: Sites, Projects, Drawings (with images).</p>
+<button class="btn bp" onclick="saveSettings()" style="width:100%">Save Settings</button>
+</div>
+</div>
+<div id="toast"></div>
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════════════════
+// INDEXEDDB — stores all binary data
+// ═══════════════════════════════════════════════════════
+var IDB=(function(){
+  var db=null;
+  function open(cb){
+    if(db){cb(null,db);return;}
+    var req=indexedDB.open('DefectDB',1);
+    req.onupgradeneeded=function(e){
+      if(!e.target.result.objectStoreNames.contains('blobs'))
+        e.target.result.createObjectStore('blobs',{keyPath:'k'});
+    };
+    req.onsuccess=function(e){db=e.target.result;cb(null,db);};
+    req.onerror=function(e){cb(e.target.error);};
+  }
+  function put(k,v,cb){open(function(e,d){if(e){if(cb)cb(e);return;}var tx=d.transaction('blobs','readwrite');tx.objectStore('blobs').put({k:k,v:v});tx.oncomplete=function(){if(cb)cb(null);};tx.onerror=function(e){if(cb)cb(e.target.error);};});}
+  function get(k,cb){open(function(e,d){if(e){cb(e,null);return;}var req=d.transaction('blobs','readonly').objectStore('blobs').get(k);req.onsuccess=function(){cb(null,req.result?req.result.v:null);};req.onerror=function(e){cb(e.target.error,null);};});}
+  function del(k){open(function(e,d){if(!e)d.transaction('blobs','readwrite').objectStore('blobs').delete(k);});}
+  return{put:put,get:get,del:del,open:open};
+})();
+
+// ═══════════════════════════════════════════════════════
+// LOCALSTORAGE — text metadata only
+// ═══════════════════════════════════════════════════════
+var LS={
+  _g:function(k){try{return JSON.parse(localStorage.getItem(k)||'[]');}catch(e){return[];}},
+  _s:function(k,v){localStorage.setItem(k,JSON.stringify(v));},
+  getSites:function(){return this._g('sites');},saveSites:function(v){this._s('sites',v);},
+  getProjects:function(){return this._g('projects');},saveProjects:function(v){this._s('projects',v);},
+  getDrawings:function(){return this._g('drawings');},saveDrawings:function(v){this._s('drawings',v);},
+  getDefects:function(){return this._g('defects');},saveDefects:function(v){this._s('defects',v);},
+  nextNum:function(){var n=parseInt(localStorage.getItem('ctr')||'0',10)+1;localStorage.setItem('ctr',String(n));return n;}
+};
+
+// ═══════════════════════════════════════════════════════
+// HELPERS
+// ═══════════════════════════════════════════════════════
+function xe(s){return s?String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'):'';} 
+function fmtNo(n){
+  var d=new Date(),dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yy=String(d.getFullYear()).slice(-2);
+  return (localStorage.getItem('prefix')||'DIRS')+'-'+String(n).padStart(6,'0')+'-'+dd+mm+yy;
+}
+function fmtDate(){
+  var d=new Date(),dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yyyy=String(d.getFullYear());
+  return dd+'/'+mm+'/'+yyyy;
+}
+var _tt=null;
+function toast(msg){var t=document.getElementById('toast');t.textContent=msg;t.style.display='block';if(_tt)clearTimeout(_tt);_tt=setTimeout(function(){t.style.display='none';},3000);}
+function getImgDims(dataUrl,cb){if(!dataUrl){cb(4,3);return;}var img=new Image();img.onload=function(){cb(img.naturalWidth||4,img.naturalHeight||3);};img.onerror=function(){cb(4,3);};img.src=dataUrl;}
+
+// ═══════════════════════════════════════════════════════
+// PAGE NAVIGATION
+// ═══════════════════════════════════════════════════════
+var PAGES=['pg-home','pg-proj','pg-photos','pg-captions','pg-floor','pg-kp','pg-ep','pg-sec','pg-notes','pg-records'];
+function showPage(id){PAGES.forEach(function(p){document.getElementById(p).style.display=(p===id)?'flex':'none';});}
+
+// ═══════════════════════════════════════════════════════
+// APP STATE
+// ═══════════════════════════════════════════════════════
+var ST={
+  site:null,proj:null,
+  defect:null,
+  kpDraw:null,
+  photoUrls:[],
+  photoCaptions:[], // captions for each photo
+  cs:{
+    kp: {scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'},
+    ep: {scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'},
+    sec:{scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'}
+  }
+};
+
+function newDefect(){
+  return{
+    id:'def_'+Date.now(),
+    siteId:ST.site.id,siteName:ST.site.name,
+    projId:ST.proj.id,projName:ST.proj.name,
+    floor:'',arrowDir:0,
+    photoKeys:[],photoCaptions:[],
+    kpKey:null,epKey:null,secKey:null,
+    desc:'',by:localStorage.getItem('inspector')||'',
+    recordNo:'',date:'',createdAt:'',synced:false
+  };
+}
+
+// ═══════════════════════════════════════════════════════
+// MODALS
+// ═══════════════════════════════════════════════════════
+function openMo(id){document.getElementById(id).style.display='flex';}
+function closeMo(id){document.getElementById(id).style.display='none';}
+
+// ═══════════════════════════════════════════════════════
+// SITES
+// ═══════════════════════════════════════════════════════
+function renderSites(){
+  showPage('pg-home');
+  var sites=LS.getSites(),el=document.getElementById('site-list');
+  if(!sites.length){el.innerHTML='<p style="text-align:center;color:#8fa3b8;padding:40px 20px">No sites yet.<br>Tap + to add a site.</p>';return;}
+  el.innerHTML=sites.map(function(s){
+    return '<div class="card" onclick="openSite('+s.id+',\''+xe(s.name)+'\')">'
+      +'<div><div style="font-weight:600">'+xe(s.name)+'</div><div style="font-size:.76rem;color:#8fa3b8">'+xe(s.description||'')+'</div></div>'
+      +'<div style="display:flex;gap:4px">'
+      +'<button class="bico" onclick="event.stopPropagation();openDrawings('+s.id+',\''+xe(s.name)+'\')">📐</button>'
+      +'<button class="bico" style="color:#e53935" onclick="event.stopPropagation();delSite('+s.id+',\''+xe(s.name)+'\')">🗑</button>'
+      +'</div></div>';
+  }).join('');
+}
+function submitSite(){
+  var name=document.getElementById('inp-site-name').value.trim();
+  if(!name){toast('Please enter a site name');return;}
+  var sites=LS.getSites();sites.push({id:Date.now(),name:name,description:document.getElementById('inp-site-desc').value.trim()});
+  LS.saveSites(sites);closeMo('mo-site');renderSites();toast('Site added!');
+}
+function delSite(id,name){
+  if(!confirm('Delete site "'+name+'" and all its data?'))return;
+  LS.saveSites(LS.getSites().filter(function(s){return s.id!==id;}));
+  LS.saveProjects(LS.getProjects().filter(function(p){return p.siteId!==id;}));
+  LS.saveDrawings(LS.getDrawings().filter(function(d){return d.siteId!==id;}));
+  renderSites();toast('Site deleted');
+}
+
+// ═══════════════════════════════════════════════════════
+// PROJECTS
+// ═══════════════════════════════════════════════════════
+function openSite(id,name){
+  ST.site={id:id,name:name};showPage('pg-proj');
+  document.getElementById('proj-title').textContent=name;
+  document.getElementById('proj-sub').textContent='Projects';
+  renderProjects();
+}
+function renderProjects(){
+  var projs=LS.getProjects().filter(function(p){return p.siteId===ST.site.id;}),el=document.getElementById('proj-list');
+  if(!projs.length){el.innerHTML='<p style="text-align:center;color:#8fa3b8;padding:40px 20px">No projects yet.<br>Tap "+ Project" to add one.</p>';return;}
+  el.innerHTML=projs.map(function(p){
+    return '<div class="card" onclick="startDefect('+p.id+',\''+xe(p.name)+'\')">'
+      +'<div><div style="font-weight:600">'+xe(p.name)+'</div><div style="font-size:.76rem;color:#8fa3b8">'+xe(p.description||'')+'</div></div>'
+      +'<button class="bico" style="color:#e53935" onclick="event.stopPropagation();delProject('+p.id+',\''+xe(p.name)+'\')">🗑</button>'
+      +'</div>';
+  }).join('');
+}
+function submitProject(){
+  var name=document.getElementById('inp-proj-name').value.trim();
+  if(!name){toast('Please enter a project name');return;}
+  var projs=LS.getProjects();projs.push({id:Date.now(),siteId:ST.site.id,name:name,description:document.getElementById('inp-proj-desc').value.trim()});
+  LS.saveProjects(projs);closeMo('mo-proj');renderProjects();toast('Project added!');
+}
+function delProject(id,name){
+  if(!confirm('Delete project "'+name+'"?'))return;
+  LS.saveProjects(LS.getProjects().filter(function(p){return p.id!==id;}));
+  renderProjects();toast('Project deleted');
+}
+
+// ═══════════════════════════════════════════════════════
+// DRAWINGS
+// ═══════════════════════════════════════════════════════
+function openDrawings(id,name){
+  ST.site={id:id,name:name};
+  document.getElementById('draw-site-name').textContent=name;
+  document.getElementById('inp-draw-name').value='';document.getElementById('inp-draw-floor').value='';document.getElementById('inp-draw-file').value='';
+  renderDrawings();openMo('mo-draw');
+}
+function renderDrawings(){
+  var draws=LS.getDrawings().filter(function(d){return d.siteId===ST.site.id;}),el=document.getElementById('drawings-list');
+  if(!draws.length){el.innerHTML='<p style="color:#8fa3b8;padding:8px 0">No drawings yet.</p>';return;}
+  el.innerHTML=draws.map(function(d){
+    return '<div class="di"><div><div style="font-weight:600;font-size:.86rem">'+xe(d.name)+'</div>'
+      +'<div style="font-size:.7rem;color:#8fa3b8">'+(d.type==='plan'?'🗺 Key Plan':'📏 Section/Elevation')+(d.floor?' · '+xe(d.floor):'')+'</div></div>'
+      +'<button class="bico" style="color:#e53935" onclick="delDraw('+d.id+')">🗑</button></div>';
+  }).join('');
+}
+function delDraw(id){
+  if(!confirm('Delete this drawing?'))return;
+  var d=LS.getDrawings().find(function(x){return x.id===id;});
+  if(d)IDB.del('draw_'+d.siteId+'_'+id);
+  LS.saveDrawings(LS.getDrawings().filter(function(x){return x.id!==id;}));
+  renderDrawings();toast('Drawing deleted');
+}
+function uploadDraw(){
+  var name=document.getElementById('inp-draw-name').value.trim();
+  var type=document.getElementById('inp-draw-type').value;
+  var floor=document.getElementById('inp-draw-floor').value.trim();
+  var fi=document.getElementById('inp-draw-file');
+  if(!name){toast('Please enter drawing name');return;}
+  if(!fi.files||!fi.files[0]){toast('Please select a file');return;}
+  if(fi.files[0].size>5*1024*1024){toast('File too large. Use image under 5MB.');return;}
+  toast('Uploading...');
+  var reader=new FileReader();
+  reader.onload=function(e){
+    var img=new Image();
+    img.onload=function(){
+      var c=document.createElement('canvas'),w=img.width,h=img.height;
+      if(w>2000){h=Math.round(h*2000/w);w=2000;}
+      c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+      var drawId=Date.now();
+      LS.saveDrawings(LS.getDrawings().concat([{id:drawId,siteId:ST.site.id,name:name,type:type,floor:floor}]));
+      IDB.put('draw_'+ST.site.id+'_'+drawId,c.toDataURL('image/jpeg',0.88),function(err){
+        if(err){toast('Failed to save drawing');return;}
+        renderDrawings();toast('Drawing uploaded!');fi.value='';
+      });
+    };
+    img.src=e.target.result;
+  };
+  reader.readAsDataURL(fi.files[0]);
+}
+
+// ═══════════════════════════════════════════════════════
+// SETTINGS
+// ═══════════════════════════════════════════════════════
+function openSettings(){
+  document.getElementById('inp-inspector').value=localStorage.getItem('inspector')||'';
+  document.getElementById('inp-prefix').value=localStorage.getItem('prefix')||'DIRS';
+  document.getElementById('inp-seqno').value=parseInt(localStorage.getItem('ctr')||'0',10)+1;
+  updatePreview();
+  var ci=document.getElementById('inp-hdr-color');
+  if(ci){ci.value=localStorage.getItem('hdr_color')||'#FFC000';ci.addEventListener('input',function(){updatePreview();});}
+  IDB.get('header_img',function(e,v){
+    var prev=document.getElementById('hdr-preview'),thumb=document.getElementById('hdr-thumb');
+    if(v){thumb.src=v;prev.style.display='block';}else{prev.style.display='none';}
+  });
+  openMo('mo-settings');
+}
+function updatePreview(){
+  var pfx=document.getElementById('inp-prefix').value.trim()||'DIRS';
+  var num=parseInt(document.getElementById('inp-seqno').value)||1;
+  var d=new Date(),dd=String(d.getDate()).padStart(2,'0'),mm=String(d.getMonth()+1).padStart(2,'0'),yy=String(d.getFullYear()).slice(-2);
+  document.getElementById('seq-preview').textContent=pfx+'-'+String(num).padStart(6,'0')+'-'+dd+mm+yy;
+  var ci=document.getElementById('inp-hdr-color');
+  if(ci){var prev=document.getElementById('hdr-color-preview');if(prev){prev.style.background=ci.value;prev.textContent=ci.value.toUpperCase();}}
+}
+function clearHdr(){IDB.del('header_img');document.getElementById('hdr-preview').style.display='none';document.getElementById('inp-hdr').value='';toast('Header image removed');}
+function saveSettings(){
+  var name=document.getElementById('inp-inspector').value.trim();
+  if(!name){toast('Please enter your name');return;}
+  localStorage.setItem('inspector',name);
+  localStorage.setItem('prefix',document.getElementById('inp-prefix').value.trim()||'DIRS');
+  localStorage.setItem('ctr',String(parseInt(document.getElementById('inp-seqno').value)||1)-1);
+  var ci=document.getElementById('inp-hdr-color');if(ci)localStorage.setItem('hdr_color',ci.value);
+  var fi=document.getElementById('inp-hdr');
+  if(fi.files&&fi.files[0]){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas'),w=img.width,h=img.height;
+        if(w>800){h=Math.round(h*800/w);w=800;}
+        c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+        IDB.put('header_img',c.toDataURL('image/jpeg',0.9),function(){closeMo('mo-settings');toast('Settings saved!');});
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(fi.files[0]);
+  }else{closeMo('mo-settings');toast('Settings saved!');}
+}
+
+// ═══════════════════════════════════════════════════════
+// EXPORT / IMPORT
+// ═══════════════════════════════════════════════════════
+function exportData(){
+  toast('Preparing export...');
+  var draws=LS.getDrawings(),loaded=0,drawsOut=draws.map(function(d){return Object.assign({},d,{dataUrl:null});});
+  if(!draws.length){doExport(drawsOut);return;}
+  draws.forEach(function(d,i){IDB.get('draw_'+d.siteId+'_'+d.id,function(e,v){drawsOut[i].dataUrl=v||null;loaded++;if(loaded===draws.length)doExport(drawsOut);});});
+}
+function doExport(drawsOut){
+  var data={version:2,exportedAt:new Date().toISOString(),inspector:localStorage.getItem('inspector')||'',prefix:localStorage.getItem('prefix')||'DIRS',sites:LS.getSites(),projects:LS.getProjects(),drawings:drawsOut};
+  var blob=new Blob([JSON.stringify(data)],{type:'application/json'});
+  var url=URL.createObjectURL(blob),a=document.createElement('a');
+  a.href=url;a.download='defect-inspector-'+new Date().toISOString().slice(0,10)+'.json';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},1000);toast('Export complete!');
+}
+function importData(input){
+  if(!input.files||!input.files[0])return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    try{
+      var data=JSON.parse(e.target.result);
+      if(!data.sites){toast('Invalid file');return;}
+      if(!confirm('Import will merge sites, projects and drawings. Continue?'))return;
+      var existSiteIds=LS.getSites().map(function(s){return s.id;});
+      var newSites=(data.sites||[]).filter(function(s){return existSiteIds.indexOf(s.id)===-1;});
+      LS.saveSites(LS.getSites().concat(newSites));
+      var existProjIds=LS.getProjects().map(function(p){return p.id;});
+      var newProjs=(data.projects||[]).filter(function(p){return existProjIds.indexOf(p.id)===-1;});
+      LS.saveProjects(LS.getProjects().concat(newProjs));
+      var existDrawIds=LS.getDrawings().map(function(d){return d.id;});
+      var newDraws=(data.drawings||[]).filter(function(d){return existDrawIds.indexOf(d.id)===-1;});
+      LS.saveDrawings(LS.getDrawings().concat(newDraws.map(function(d){return{id:d.id,siteId:d.siteId,name:d.name,type:d.type,floor:d.floor};})));
+      newDraws.forEach(function(d){if(d.dataUrl)IDB.put('draw_'+d.siteId+'_'+d.id,d.dataUrl,null);});
+      if(!localStorage.getItem('inspector')&&data.inspector)localStorage.setItem('inspector',data.inspector);
+      if(data.prefix)localStorage.setItem('prefix',data.prefix);
+      input.value='';closeMo('mo-settings');renderSites();
+      toast('Imported: '+newSites.length+' sites, '+newProjs.length+' projects, '+newDraws.length+' drawings');
+    }catch(err){toast('Import failed: '+err.message);}
+  };
+  reader.readAsText(input.files[0]);
+}
+
+// ═══════════════════════════════════════════════════════
+// NEW DEFECT FLOW
+// ═══════════════════════════════════════════════════════
+function startDefect(projId,projName){
+  ST.proj={id:projId,name:projName};
+  ST.defect=newDefect();ST.kpDraw=null;ST.photoUrls=[];ST.photoCaptions=[];
+  ST.cs={kp:{scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'},ep:{scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'},sec:{scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'}};
+  showPage('pg-photos');
+  document.getElementById('ph-sub').textContent=ST.site.name+' · '+projName;
+  renderPhotos();
+}
+
+// ═══════════════════════════════════════════════════════
+// PHOTOS (with captions)
+// ═══════════════════════════════════════════════════════
+function camClick(){document.getElementById('cam').click();}
+function renderPhotos(){
+  var g=document.getElementById('photo-grid');
+  g.innerHTML=ST.photoUrls.map(function(p,i){
+    var cap=ST.photoCaptions[i]||'';
+    return '<div class="pthumb">'
+      +'<div class="pthumb-img"><img src="'+p+'">'
+      +'<span class="plbl">Pic.'+String(i+1).padStart(2,'0')+'</span>'
+      +'<button class="pdel" onclick="delPhoto('+i+')">✕</button></div>'
+      +'<input class="pcap" type="text" placeholder="Add caption (optional)" value="'+xe(cap)+'"'
+      +' onchange="updateCaption('+i+',this.value)" onblur="updateCaption('+i+',this.value)">'
+      +'</div>';
+  }).join('');
+}
+function updateCaption(i,val){ST.photoCaptions[i]=val;}
+function handleCam(input){
+  var files=Array.from(input.files);if(!files.length)return;
+  var done=0;
+  files.forEach(function(file){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var img=new Image();
+      img.onload=function(){
+        var c=document.createElement('canvas'),w=img.width,h=img.height;
+        if(w>1400){h=Math.round(h*1400/w);w=1400;}
+        c.width=w;c.height=h;c.getContext('2d').drawImage(img,0,0,w,h);
+        var dataUrl=c.toDataURL('image/jpeg',0.78);
+        var key=ST.defect.id+'_ph_'+Date.now()+'_'+done;
+        IDB.put(key,dataUrl,function(err){
+          if(err){toast('Failed to save photo');return;}
+          ST.defect.photoKeys.push(key);ST.photoUrls.push(dataUrl);ST.photoCaptions.push('');
+          done++;if(done===files.length)renderPhotos();
+        });
+      };
+      img.src=e.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+  input.value='';
+}
+function delPhoto(i){
+  IDB.del(ST.defect.photoKeys[i]);
+  ST.defect.photoKeys.splice(i,1);ST.photoUrls.splice(i,1);ST.photoCaptions.splice(i,1);
+  renderPhotos();
+}
+
+// ═══════════════════════════════════════════════════════
+// LOCATION
+// ═══════════════════════════════════════════════════════
+function goCaption(){
+  if(!ST.defect.photoKeys.length){toast('Please take at least one photo');return;}
+  showPage('pg-captions');
+  document.getElementById('cap-sub').textContent=ST.site.name+' · '+ST.proj.name;
+  renderCaptions();
+}
+
+function renderCaptions(){
+  var el=document.getElementById('caption-list');
+  if(!ST.photoUrls.length){el.innerHTML='<p style="color:#8fa3b8;text-align:center;padding:20px">No photos yet.</p>';return;}
+  el.innerHTML=ST.photoUrls.map(function(p,i){
+    var cap=ST.photoCaptions[i]||'';
+    return '<div style="background:#1a2535;border:1px solid #2d3f55;border-radius:10px;margin-bottom:12px;overflow:hidden">'
+      +'<div style="position:relative">'
+      +'<img src="'+p+'" style="width:100%;max-height:200px;object-fit:cover;display:block">'
+      +'<span style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);color:#fff;font-size:.72rem;padding:4px 8px">Pic.'+String(i+1).padStart(2,'0')+'</span>'
+      +'</div>'
+      +'<div style="padding:10px">'
+      +'<label style="display:block;font-size:.72rem;color:#8fa3b8;margin-bottom:5px;text-transform:uppercase">Caption (optional)</label>'
+      +'<input type="text" class="fi" placeholder="Describe this photo..." value="'+xe(cap)+'"'
+      +' style="font-size:.88rem" onchange="ST.photoCaptions['+i+']=this.value" onblur="ST.photoCaptions['+i+']=this.value">'
+      +'</div></div>';
+  }).join('');
+}
+
+function goFloor(){
+  if(!ST.defect.photoKeys.length){toast('Please take at least one photo');return;}
+  // Sync captions from caption page
+  var inputs=document.querySelectorAll('#caption-list .fi');
+  inputs.forEach(function(inp,i){if(i<ST.photoCaptions.length)ST.photoCaptions[i]=inp.value;});
+  ST.defect.photoCaptions=ST.photoCaptions.slice();
+  // Save captions to defect
+  ST.defect.photoCaptions=ST.photoCaptions.slice();
+  showPage('pg-floor');
+  document.getElementById('fl-sub').textContent=ST.site.name+' · '+ST.proj.name;
+  document.getElementById('inp-floor').value=ST.defect.floor||'';
+  var plans=LS.getDrawings().filter(function(d){return d.siteId===ST.site.id&&d.type==='plan';});
+  var sel=document.getElementById('sel-kp');
+  sel.innerHTML='<option value="">-- Select key plan --</option>'
+    +plans.map(function(d){return'<option value="'+d.id+'" data-floor="'+xe(d.floor||'')+'">'+xe(d.name)+(d.floor?' ('+xe(d.floor)+')':'')+'</option>';}).join('');
+  document.getElementById('floor-auto').style.display='none';
+  document.getElementById('floor-manual').style.display='block';
+}
+function onKpSelect(){
+  var sel=document.getElementById('sel-kp'),opt=sel.options[sel.selectedIndex];
+  var floor=opt?opt.getAttribute('data-floor'):'';
+  if(floor){
+    document.getElementById('floor-auto-val').textContent=floor;
+    document.getElementById('floor-auto').style.display='block';
+    document.getElementById('floor-manual').style.display='none';
+    document.getElementById('inp-floor').value=floor;
+  }else{
+    document.getElementById('floor-auto').style.display='none';
+    document.getElementById('floor-manual').style.display='block';
+    document.getElementById('inp-floor').value='';
+  }
+}
+
+// ═══════════════════════════════════════════════════════
+// CANVAS ENGINE
+// ═══════════════════════════════════════════════════════
+function drawCanvas(t){
+  var cs=ST.cs[t],cid=t+'-canvas',c=document.getElementById(cid);if(!c)return;
+  var wrap=document.getElementById(t+'-wrap'),w=wrap.offsetWidth,h=wrap.offsetHeight;if(!w||!h)return;
+  c.width=w;c.height=h;
+  var ctx=c.getContext('2d');
+  // White background (so snapshots have white bg, not black)
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,w,h);
+  ctx.save();ctx.translate(cs.ox,cs.oy);ctx.scale(cs.scale,cs.scale);
+  if(cs.img){
+    ctx.drawImage(cs.img,0,0);
+  }else{
+    ctx.fillStyle='#f0f0f0';ctx.fillRect(0,0,w/cs.scale,h/cs.scale);
+    ctx.fillStyle='#888';ctx.font='13px Arial';ctx.textAlign='center';
+    ctx.fillText('No drawing loaded.',w/cs.scale/2,h/cs.scale/2-12);
+    ctx.fillText('Switch to Mark mode then tap.',w/cs.scale/2,h/cs.scale/2+10);
+  }
+  if(cs.marker){
+    var mx=cs.marker.x,my=cs.marker.y;
+    if(t==='ep'){
+      // Arrow: control point = TIP (where user taps = arrowhead tip)
+      // Arrow draws FROM tip backwards by aLen
+      var deg=ST.defect&&ST.defect.arrowDir!==undefined?ST.defect.arrowDir:0;
+      var rad=(deg-90)*Math.PI/180; // 0=up(north)
+      var aLen=112/cs.scale,aHead=88/cs.scale,aShaft=20/cs.scale;
+      // mx,my = tip of arrow (control point)
+      // tail = tip - direction * aLen
+      var tx=mx-Math.cos(rad)*aLen,ty=my-Math.sin(rad)*aLen;
+      ctx.save();
+      ctx.fillStyle='#FF0000';ctx.strokeStyle='#FF0000';
+      // Draw shaft from tail to (tip - arrowhead base) so shaft doesn't cover tip
+      var shaftEndX=mx-Math.cos(rad)*aHead*0.7,shaftEndY=my-Math.sin(rad)*aHead*0.7;
+      ctx.lineWidth=aShaft;ctx.lineCap='round';
+      ctx.beginPath();ctx.moveTo(tx,ty);ctx.lineTo(shaftEndX,shaftEndY);ctx.stroke();
+      // Draw large arrowhead at tip (solid triangle, tip = mx,my)
+      ctx.beginPath();
+      ctx.moveTo(mx,my);
+      ctx.lineTo(mx-Math.cos(rad-0.45)*aHead,my-Math.sin(rad-0.45)*aHead);
+      ctx.lineTo(mx-Math.cos(rad+0.45)*aHead,my-Math.sin(rad+0.45)*aHead);
+      ctx.closePath();ctx.fill();
+      // Small filled circle at tail
+      ctx.beginPath();ctx.arc(tx,ty,aShaft/2,0,Math.PI*2);ctx.fill();
+      ctx.restore();
+    }else{
+      // Standard red circle+cross for key plan and section
+      var r=(t==='sec'?28:14)/cs.scale; // section marker doubled
+      var crossLen=(t==='sec'?16:8)/cs.scale;
+      var crossW=(t==='sec'?5:2.5)/cs.scale;
+      ctx.beginPath();ctx.arc(mx,my,r,0,Math.PI*2);ctx.fillStyle='rgba(255,50,50,0.9)';ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=crossW;ctx.stroke();
+      ctx.beginPath();ctx.moveTo(mx-crossLen,my);ctx.lineTo(mx+crossLen,my);ctx.moveTo(mx,my-crossLen);ctx.lineTo(mx,my+crossLen);
+      ctx.strokeStyle='#fff';ctx.lineWidth=crossW;ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+function loadCanvas(t,dataUrl){
+  var cs=ST.cs[t];cs.scale=1;cs.ox=0;cs.oy=0;cs.marker=null;cs.img=null;cs.tool='pan';
+  setToolBtns(t,'pan');
+  if(!dataUrl){drawCanvas(t);setupCanvas(t);return;}
+  var img=new Image();
+  img.onload=function(){
+    cs.img=img;
+    var wrap=document.getElementById(t+'-wrap'),cw=wrap.offsetWidth,ch=wrap.offsetHeight;
+    if(cw&&ch){var s=Math.min(cw/img.width,ch/img.height)*0.95;cs.scale=s;cs.ox=(cw-img.width*s)/2;cs.oy=(ch-img.height*s)/2;}
+    drawCanvas(t);setupCanvas(t);
+  };
+  img.onerror=function(){toast('Failed to load drawing');drawCanvas(t);setupCanvas(t);};
+  img.src=dataUrl;
+}
+function setToolBtns(t,tool){
+  var pan=document.getElementById(t+'-pan'),mark=document.getElementById(t+'-mark');
+  if(pan)pan.classList.toggle('on',tool==='pan');
+  if(mark)mark.classList.toggle('on',tool==='mark');
+}
+function setTool(t,tool){ST.cs[t].tool=tool;setToolBtns(t,tool);}
+function setArrow(deg){
+  ST.defect.arrowDir=deg;
+  // Selecting direction automatically activates mark mode
+  ST.cs.ep.tool='mark';
+  setToolBtns('ep','mark');
+  ['N','NE','E','SE','S','SW','W','NW'].forEach(function(d,i){
+    var btn=document.getElementById('arr-'+d);if(btn)btn.classList.toggle('on',deg===i*45);
+  });
+  drawCanvas('ep');
+  var dirs=['N','NE','E','SE','S','SW','W','NW'];
+  toast('Indication Mark: '+dirs[Math.round(deg/45)%8]+' - tap drawing to place');
+}
+function setupCanvas(t){
+  var cs=ST.cs[t],cid=t+'-canvas';
+  var old=document.getElementById(cid),nc=old.cloneNode(false);old.parentNode.replaceChild(nc,old);
+  var c=document.getElementById(cid);
+  var touches=[],lastDist=0,moved=false,tapT=0,panning=false,lx=0,ly=0;
+  c.addEventListener('touchstart',function(e){
+    e.preventDefault();touches=Array.from(e.touches);
+    if(touches.length===1){panning=true;lx=touches[0].clientX;ly=touches[0].clientY;tapT=Date.now();moved=false;}
+    else if(touches.length===2){panning=false;lastDist=Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);}
+  },{passive:false});
+  c.addEventListener('touchmove',function(e){
+    e.preventDefault();touches=Array.from(e.touches);
+    if(touches.length===1&&panning){
+      var dx=touches[0].clientX-lx,dy=touches[0].clientY-ly;
+      if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
+      if(cs.tool==='pan'){cs.ox+=dx;cs.oy+=dy;}
+      lx=touches[0].clientX;ly=touches[0].clientY;drawCanvas(t);
+    }else if(touches.length===2){
+      var d=Math.hypot(touches[0].clientX-touches[1].clientX,touches[0].clientY-touches[1].clientY);
+      if(lastDist>0){
+        var ratio=d/lastDist,ns=Math.min(Math.max(cs.scale*ratio,0.1),20);
+        var rect=c.getBoundingClientRect();
+        var mx=(touches[0].clientX+touches[1].clientX)/2-rect.left;
+        var my=(touches[0].clientY+touches[1].clientY)/2-rect.top;
+        cs.ox=mx-(mx-cs.ox)*(ns/cs.scale);cs.oy=my-(my-cs.oy)*(ns/cs.scale);cs.scale=ns;
+      }
+      lastDist=d;drawCanvas(t);
+    }
+  },{passive:false});
+  c.addEventListener('touchend',function(e){
+    e.preventDefault();
+    if(cs.tool==='mark'&&!moved&&(Date.now()-tapT)<400&&e.changedTouches.length===1){
+      var rect=c.getBoundingClientRect(),tc=e.changedTouches[0];
+      cs.marker={x:(tc.clientX-rect.left-cs.ox)/cs.scale,y:(tc.clientY-rect.top-cs.oy)/cs.scale};
+      drawCanvas(t);toast('Marker placed');
+    }
+    panning=false;touches=[];
+  },{passive:false});
+  c.addEventListener('mousedown',function(e){panning=true;lx=e.clientX;ly=e.clientY;moved=false;tapT=Date.now();});
+  c.addEventListener('mousemove',function(e){
+    if(!panning)return;
+    var dx=e.clientX-lx,dy=e.clientY-ly;
+    if(Math.abs(dx)>4||Math.abs(dy)>4)moved=true;
+    if(cs.tool==='pan'){cs.ox+=dx;cs.oy+=dy;drawCanvas(t);}
+    lx=e.clientX;ly=e.clientY;
+  });
+  c.addEventListener('mouseup',function(e){
+    if(cs.tool==='mark'&&!moved){
+      var rect=c.getBoundingClientRect();
+      cs.marker={x:(e.clientX-rect.left-cs.ox)/cs.scale,y:(e.clientY-rect.top-cs.oy)/cs.scale};
+      drawCanvas(t);toast('Marker placed');
+    }
+    panning=false;
+  });
+  c.addEventListener('wheel',function(e){
+    e.preventDefault();
+    var ns=Math.min(Math.max(cs.scale*(e.deltaY>0?0.9:1.1),0.1),20);
+    var rect=c.getBoundingClientRect(),mx=e.clientX-rect.left,my=e.clientY-rect.top;
+    cs.ox=mx-(mx-cs.ox)*(ns/cs.scale);cs.oy=my-(my-cs.oy)*(ns/cs.scale);cs.scale=ns;drawCanvas(t);
+  },{passive:false});
+  drawCanvas(t);
+}
+function snapCanvas(t){return document.getElementById(t+'-canvas').toDataURL('image/jpeg',0.88);}
+
+// ═══════════════════════════════════════════════════════
+// STEP NAVIGATION
+// ═══════════════════════════════════════════════════════
+function goKeyPlan(){
+  var sv=document.getElementById('sel-kp').value;
+  if(!sv){toast('Please select a key plan drawing');return;}
+  var fl=document.getElementById('inp-floor').value.trim();
+  if(!fl){toast('Please enter floor/location');return;}
+  ST.defect.floor=fl;
+  // Load KP drawing then go directly to Enlarged Plan
+  IDB.get('draw_'+ST.site.id+'_'+sv,function(e,v){
+    ST.kpDraw={id:sv,dataUrl:v};
+    // Pre-load KP canvas in background (for snapshot)
+    var img=new Image();
+    img.onload=function(){
+      ST.cs.kp.img=img;
+      var tmpW=1280,tmpH=720;
+      var s=Math.min(tmpW/img.width,tmpH/img.height)*0.95;
+      ST.cs.kp.scale=s;ST.cs.kp.ox=(tmpW-img.width*s)/2;ST.cs.kp.oy=(tmpH-img.height*s)/2;
+    };
+    if(v)img.src=v;
+    // Go directly to Enlarged Plan
+    ST.defect.arrowDir=0;
+    ['N','NE','E','SE','S','SW','W','NW'].forEach(function(d){var btn=document.getElementById('arr-'+d);if(btn)btn.classList.remove('on');});
+    var btnN=document.getElementById('arr-N');if(btnN)btnN.classList.add('on');
+    showPage('pg-ep');
+    document.getElementById('ep-sub').textContent='Floor: '+fl+' (mark defect position)';
+    setTimeout(function(){loadCanvas('ep',v);},50);
+  });
+}
+function goEnlarged(){
+  var snap=snapCanvas('kp');ST.defect.kpKey=ST.defect.id+'_kp';IDB.put(ST.defect.kpKey,snap,null);
+  ST.defect.arrowDir=0;
+  ['N','NE','E','SE','S','SW','W','NW'].forEach(function(d){var btn=document.getElementById('arr-'+d);if(btn)btn.classList.remove('on');});
+  var btnN=document.getElementById('arr-N');if(btnN)btnN.classList.add('on');
+  showPage('pg-ep');document.getElementById('ep-sub').textContent='Floor: '+ST.defect.floor+' (zoom in for detail)';
+  setTimeout(function(){loadCanvas('ep',ST.kpDraw?ST.kpDraw.dataUrl:null);},50);
+}
+function autoGenKpSnapshot(){
+  // Generate KP snapshot with marker at same relative position as EP marker
+  var epCs=ST.cs.ep, kpCs=ST.cs.kp;
+  var c=document.createElement('canvas');
+  c.width=1280;c.height=720;
+  var ctx=c.getContext('2d');
+  ctx.fillStyle='#FFFFFF';ctx.fillRect(0,0,1280,720);
+  if(kpCs.img){
+    ctx.save();ctx.translate(kpCs.ox,kpCs.oy);ctx.scale(kpCs.scale,kpCs.scale);
+    ctx.drawImage(kpCs.img,0,0);
+    // Mirror EP marker to KP if EP has marker
+    if(epCs.marker){
+      // EP marker in image coords -> KP canvas coords
+      var mx=epCs.marker.x,my=epCs.marker.y;
+      // Draw small red circle on KP at same image position
+      var r=14/kpCs.scale;
+      ctx.beginPath();ctx.arc(mx,my,r,0,Math.PI*2);
+      ctx.fillStyle='rgba(255,50,50,0.9)';ctx.fill();
+      ctx.strokeStyle='#fff';ctx.lineWidth=2.5/kpCs.scale;ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(mx-8/kpCs.scale,my);ctx.lineTo(mx+8/kpCs.scale,my);
+      ctx.moveTo(mx,my-8/kpCs.scale);ctx.lineTo(mx,my+8/kpCs.scale);
+      ctx.strokeStyle='#fff';ctx.lineWidth=2.5/kpCs.scale;ctx.stroke();
+      // Add annotation text
+      var fs=Math.max(20,20/kpCs.scale); // 20pt annotation
+      ctx.font='bold '+fs+'px Arial';
+      ctx.fillStyle='#CC0000';
+      ctx.textAlign='left';
+      ctx.lineWidth=1;
+      var tx2=mx+r+4/kpCs.scale,ty2=my-r/2;
+      // White background for text
+      var txt='See enlarged part plan';
+      var tw=ctx.measureText(txt).width;
+      ctx.fillStyle='rgba(255,255,255,0.85)';
+      ctx.fillRect(tx2-2/kpCs.scale,ty2-fs,tw+4/kpCs.scale,fs+4/kpCs.scale);
+      ctx.fillStyle='#CC0000';
+      ctx.fillText(txt,tx2,ty2);
+    }
+    ctx.restore();
+  }
+  var snap=c.toDataURL('image/jpeg',0.88);
+  ST.defect.kpKey=ST.defect.id+'_kp';
+  IDB.put(ST.defect.kpKey,snap,null);
+}
+
+function goSection(){
+  // Save EP snapshot
+  var snap=snapCanvas('ep');ST.defect.epKey=ST.defect.id+'_ep';IDB.put(ST.defect.epKey,snap,null);
+  // Auto-generate KP snapshot: draw KP with marker at same relative position as EP marker
+  autoGenKpSnapshot();
+  var secs=LS.getDrawings().filter(function(d){return d.siteId===ST.site.id&&d.type==='section';});
+  var sel=document.getElementById('sel-sec');
+  sel.innerHTML='<option value="">-- Select section/elevation (optional) --</option>'
+    +secs.map(function(d){return'<option value="'+d.id+'">'+xe(d.name)+'</option>';}).join('');
+  ST.cs.sec={scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'};
+  showPage('pg-sec');setTimeout(function(){loadCanvas('sec',null);},50);
+}
+function loadSecDraw(){
+  var sv=document.getElementById('sel-sec').value;
+  ST.cs.sec={scale:1,ox:0,oy:0,marker:null,img:null,tool:'pan'};
+  if(sv){IDB.get('draw_'+ST.site.id+'_'+sv,function(e,v){loadCanvas('sec',v);});}
+  else loadCanvas('sec',null);
+}
+function goNotes(){
+  var snap=snapCanvas('sec');ST.defect.secKey=ST.defect.id+'_sec';IDB.put(ST.defect.secKey,snap,null);
+  showPage('pg-notes');
+  document.getElementById('notes-sub').textContent=ST.site.name+' · '+ST.proj.name;
+  document.getElementById('notes-floor').textContent=ST.defect.floor;
+  document.getElementById('notes-count').textContent=ST.defect.photoKeys.length;
+  document.getElementById('inp-desc').value=ST.defect.desc||'';
+}
+
+// ═══════════════════════════════════════════════════════
+// SAVE DEFECT
+// ═══════════════════════════════════════════════════════
+function saveDefect(){
+  var desc=document.getElementById('inp-desc').value.trim();
+  if(!desc){toast('Please enter description');return;}
+  ST.defect.desc=desc;
+  ST.defect.photoCaptions=ST.photoCaptions.slice();
+  ST.defect.recordNo=fmtNo(LS.nextNum());
+  ST.defect.date=fmtDate();
+  ST.defect.createdAt=new Date().toISOString();
+  var defects=LS.getDefects();defects.push(ST.defect);LS.saveDefects(defects);
+  toast('Generating Word report...');
+  var keys=(ST.defect.photoKeys||[]).concat([ST.defect.kpKey,ST.defect.epKey,ST.defect.secKey,'header_img']).filter(Boolean);
+  var imgMap={},done=0;
+  if(!keys.length){buildDocx(ST.defect,imgMap);return;}
+  keys.forEach(function(k){IDB.get(k,function(e,v){imgMap[k]=v||null;done++;if(done===keys.length)buildDocx(ST.defect,imgMap);});});
+}
+
+// ═══════════════════════════════════════════════════════
+// RECORDS
+// ═══════════════════════════════════════════════════════
+function showRecords(){
+  showPage('pg-records');
+  var defects=LS.getDefects().sort(function(a,b){return new Date(b.createdAt)-new Date(a.createdAt);});
+  var el=document.getElementById('records-list');
+  if(!defects.length){el.innerHTML='<p style="text-align:center;color:#8fa3b8;padding:40px 20px">No records yet.</p>';return;}
+  el.innerHTML=defects.map(function(d){
+    var sd=d.desc.length>80?d.desc.substring(0,80)+'...':d.desc;
+    return '<div class="rc">'
+      +'<div style="display:flex;justify-content:space-between;margin-bottom:6px">'
+      +'<span style="font-weight:700;color:#2196f3;font-size:.88rem">'+xe(d.recordNo)+'</span>'
+      +'<span style="font-size:.7rem;padding:2px 7px;border-radius:10px;background:rgba(251,140,0,.2);color:#fb8c00">Pending</span></div>'
+      +'<div style="font-size:.78rem;color:#8fa3b8;margin-bottom:5px">📍 '+xe(d.siteName)+(d.projName?' · '+xe(d.projName):'')+' · '+xe(d.floor)+' &nbsp; 📅 '+xe(d.date)+'</div>'
+      +'<div style="font-size:.83rem;margin-bottom:9px">'+xe(sd)+'</div>'
+      +'<div style="display:flex;gap:7px">'
+      +'<button class="bsm" onclick="redownload(\''+d.id+'\')">📄 Re-download</button>'
+      +'<button class="bsm" style="border-color:#e53935;color:#e53935" onclick="delRecord(\''+d.id+'\',\''+xe(d.recordNo)+'\')">🗑 Delete</button>'
+      +'</div></div>';
+  }).join('');
+}
+function redownload(id){
+  var d=LS.getDefects().find(function(x){return x.id===id;});if(!d){toast('Not found');return;}
+  toast('Loading images...');
+  var keys=(d.photoKeys||[]).concat([d.kpKey,d.epKey,d.secKey,'header_img']).filter(Boolean);
+  var imgMap={},done=0;
+  if(!keys.length){buildDocx(d,imgMap);return;}
+  keys.forEach(function(k){IDB.get(k,function(e,v){imgMap[k]=v||null;done++;if(done===keys.length)buildDocx(d,imgMap);});});
+}
+function delRecord(id,no){
+  if(!confirm('Delete record '+no+'?'))return;
+  var d=LS.getDefects().find(function(x){return x.id===id;});
+  if(d){(d.photoKeys||[]).forEach(function(k){IDB.del(k);});if(d.kpKey)IDB.del(d.kpKey);if(d.epKey)IDB.del(d.epKey);if(d.secKey)IDB.del(d.secKey);}
+  LS.saveDefects(LS.getDefects().filter(function(x){return x.id!==id;}));
+  showRecords();toast('Deleted');
+}
+
+// ═══════════════════════════════════════════════════════
+// WORD DOCUMENT BUILDER
+// Design principles:
+// - XML strings contain ONLY text (never binary data)
+// - Images stored as Uint8Array, never converted to string
+// - Dimensions obtained via Image() element (safe)
+// ═══════════════════════════════════════════════════════
+function buildDocx(defect,imgMap){
+  var dataUrls={
+    hdr:imgMap['header_img']||null,
+    kp: imgMap[defect.kpKey]||null,
+    ep: imgMap[defect.epKey]||null,
+    sec:imgMap[defect.secKey]||null,
+    photos:(defect.photoKeys||[]).map(function(k){return imgMap[k]||null;})
+  };
+  var allKeys=['hdr','kp','ep','sec'];
+  var dims={hdr:{w:1,h:1},kp:{w:4,h:3},ep:{w:4,h:3},sec:{w:4,h:3},photos:[]};
+  var pending=allKeys.length+dataUrls.photos.length;
+  if(pending===0){genDocxXml(defect,dataUrls,dims);return;}
+  function done(){pending--;if(pending===0)genDocxXml(defect,dataUrls,dims);}
+  allKeys.forEach(function(k){
+    if(dataUrls[k]){getImgDims(dataUrls[k],function(w,h){dims[k]={w:w,h:h};done();});}
+    else done();
+  });
+  dataUrls.photos.forEach(function(du,i){
+    dims.photos.push({w:4,h:3});
+    if(du){(function(idx){getImgDims(du,function(w,h){dims.photos[idx]={w:w,h:h};done();});})(i);}
+    else done();
+  });
+}
+
+function genDocxXml(defect,dataUrls,dims){
+  // ── Binary utilities ──────────────────────────────────
+  function strToArr(s){var a=new Uint8Array(s.length);for(var i=0;i<s.length;i++)a[i]=s.charCodeAt(i)&0xff;return a;}
+  function b64ToArr(b64){var bin=atob(b64),a=new Uint8Array(bin.length);for(var i=0;i<bin.length;i++)a[i]=bin.charCodeAt(i);return a;}
+  function getB64(du){if(!du)return null;var i=du.indexOf(',');return i>-1?du.substring(i+1):null;}
+  function concat(){var parts=Array.from(arguments),tot=0;for(var i=0;i<parts.length;i++)tot+=parts[i].length;var out=new Uint8Array(tot),off=0;for(var j=0;j<parts.length;j++){out.set(parts[j],off);off+=parts[j].length;}return out;}
+  function u16(n){return[n&0xff,(n>>8)&0xff];}
+  function u32(n){return[n&0xff,(n>>8)&0xff,(n>>16)&0xff,(n>>24)&0xff];}
+  function crc32(d){if(!crc32.t){crc32.t=[];for(var i=0;i<256;i++){var c=i;for(var j=0;j<8;j++)c=c&1?(0xEDB88320^(c>>>1)):c>>>1;crc32.t[i]=c;}}var c=0xFFFFFFFF;for(var k=0;k<d.length;k++)c=crc32.t[(c^d[k])&0xff]^(c>>>8);return(c^0xFFFFFFFF)>>>0;}
+  function xmlToArr(s){if(typeof TextEncoder!=='undefined')return new TextEncoder().encode(s);var b=[];for(var i=0;i<s.length;i++){var c=s.charCodeAt(i);if(c<0x80)b.push(c);else if(c<0x800)b.push(0xC0|(c>>6),0x80|(c&0x3F));else b.push(0xE0|(c>>12),0x80|((c>>6)&0x3F),0x80|(c&0x3F));}return new Uint8Array(b);}
+
+  // ── Image registry (binary only) ──────────────────────
+  var imgReg=[],imgN=1;
+  function regImg(du){
+    if(!du)return null;
+    var b64=getB64(du);if(!b64)return null;
+    var png=du.indexOf('image/png')>-1;
+    var rId='rId'+imgN,name='img'+imgN+'.'+(png?'png':'jpeg');
+    imgReg.push({rId:rId,name:name,data:b64ToArr(b64),ct:png?'image/png':'image/jpeg'});
+    imgN++;return rId;
+  }
+  var hdrRId=regImg(dataUrls.hdr);
+  var kpRId=regImg(dataUrls.kp);
+  var epRId=regImg(dataUrls.ep);
+  var secRId=regImg(dataUrls.sec);
+  var phRIds=dataUrls.photos.map(function(du){return regImg(du);});
+
+  // ── EMU constants (1mm=36000 EMU) ─────────────────────
+  var MM=36000;
+  var HDR_W=170*MM,HDR_H=30*MM;   // header max 170x30mm
+  var IMG_W=180*MM;                // content image max width 180mm
+  var MAX_H=60*MM;                 // max height 60mm per image (3 images fit on portrait page)
+  var PH_W=160*MM;                 // photo width 160mm (in 180mm table, label=20mm)
+
+  function calcEmu(nw,nh,maxW,maxH){
+    if(!nw||!nh)return{w:maxW,h:Math.round(maxW*0.65)};
+    var w=maxW,h=Math.round(maxW*nh/nw);
+    if(h>maxH){h=maxH;w=Math.round(maxH*nw/nh);}
+    return{w:w,h:h};
+  }
+
+  // ── XML building blocks ───────────────────────────────
+  // Font: Aptos 12pt
+  var F='<w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos"/><w:sz w:val="24"/><w:szCs w:val="24"/>';
+  // Font: Aptos 10pt (for captions)
+  var FC='<w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/><w:color w:val="595959"/>';
+  // Borders
+  var BDR_OUTER='w:val="single" w:sz="18" w:space="0" w:color="000000"'; // 2.25pt outer
+  var BDR_INNER='w:val="single" w:sz="4" w:space="0" w:color="000000"';  // 0.5pt inner
+  var BDR_CELL='<w:tcBorders><w:top '+BDR_INNER+'/><w:left '+BDR_INNER+'/><w:bottom '+BDR_INNER+'/><w:right '+BDR_INNER+'/></w:tcBorders>';
+  // TBL_BDR uses outer 2.25pt for table border, inner 0.5pt for cell borders
+  // This is already correct: TBL_BDR has sz=18 outer, sz=4 insideH/V
+  var TBL_BDR='<w:tblBorders><w:top '+BDR_OUTER+'/><w:left '+BDR_OUTER+'/><w:bottom '+BDR_OUTER+'/><w:right '+BDR_OUTER+'/><w:insideH '+BDR_INNER+'/><w:insideV '+BDR_INNER+'/></w:tblBorders>';
+  // Cell margins
+  var MAR='<w:tcMar><w:top w:w="60" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>';
+  var MIMG='<w:tcMar><w:top w:w="60" w:type="dxa"/><w:left w:w="60" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="60" w:type="dxa"/></w:tcMar>';
+  // Shading
+  var hdrColor=(localStorage.getItem('hdr_color')||'#FFC000').replace('#','');
+  var ORANGE='<w:shd w:val="clear" w:color="auto" w:fill="'+hdrColor+'"/>';
+  var WHITE='<w:shd w:val="clear" w:color="auto" w:fill="FFFFFF"/>';
+  var TRANS='<w:shd w:val="clear" w:color="auto" w:fill="auto"/>';
+  // Row height min 6mm = 340 twips
+  var ROW_H='<w:trHeight w:val="340" w:hRule="atLeast"/>';
+
+  // ── Column widths (DXA, 1mm=56.7 DXA) ────────────────
+  // Info table: 3 cols — subject 40mm=2268, colon 5.3mm=301, value=rest
+  // Total 180mm = 10206 DXA
+  var SUB_W=2268,COL_W=301,VAL_W=10206-SUB_W-COL_W; // 7637
+  // Photo table: 2 cols — label 20mm=1134, photo=rest
+  var LBL_W=1134,PHO_W=10206-LBL_W; // 9072
+
+  var _pid=1;
+  function imgXml(rId,w,h){
+    var id=_pid++;
+    return '<w:drawing><wp:inline distT="0" distB="0" distL="0" distR="0">'
+      +'<wp:extent cx="'+w+'" cy="'+h+'"/><wp:effectExtent l="0" t="0" r="0" b="0"/>'
+      +'<wp:docPr id="'+id+'" name="Img'+id+'"/>'
+      +'<wp:cNvGraphicFramePr><a:graphicFrameLocks xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" noChangeAspect="1"/></wp:cNvGraphicFramePr>'
+      +'<a:graphic xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main">'
+      +'<a:graphicData uri="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+      +'<pic:pic xmlns:pic="http://schemas.openxmlformats.org/drawingml/2006/picture">'
+      +'<pic:nvPicPr><pic:cNvPr id="'+id+'" name="Img'+id+'"/><pic:cNvPicPr><a:picLocks noChangeAspect="1"/></pic:cNvPicPr></pic:nvPicPr>'
+      +'<pic:blipFill><a:blip r:embed="'+rId+'"/><a:stretch><a:fillRect/></a:stretch></pic:blipFill>'
+      +'<pic:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="'+w+'" cy="'+h+'"/></a:xfrm>'
+      +'<a:prstGeom prst="rect"><a:avLst/></a:prstGeom></pic:spPr>'
+      +'</pic:pic></a:graphicData></a:graphic></wp:inline></w:drawing>';
+  }
+
+  function para(content,align){var jc=align?'<w:jc w:val="'+align+'"/>':'';return'<w:p><w:pPr>'+jc+'<w:spacing w:after="0"/></w:pPr>'+content+'</w:p>';}
+  function run(text,bold,font){var f=font||F;return'<w:r><w:rPr>'+(bold?'<w:b/>':'')+f+'</w:rPr><w:t xml:space="preserve">'+xe(text)+'</w:t></w:r>';}
+  function runImg(rId,w,h){return'<w:r>'+imgXml(rId,w,h)+'</w:r>';}
+  function row(cells){return'<w:tr><w:trPr>'+ROW_H+'</w:trPr>'+cells+'</w:tr>';}
+
+  // Info table cell with fixed width
+  function tcInfo(content,shd,fixedW){
+    var wPr=fixedW?'<w:tcW w:w="'+fixedW+'" w:type="dxa"/>':'';
+    return'<w:tc><w:tcPr>'+wPr+(shd||WHITE)+BDR_CELL+MAR+'</w:tcPr>'+content+'</w:tc>';
+  }
+  // Generic cell
+  function tc(content,shd,span,imgMar){
+    var sp=span?'<w:gridSpan w:val="'+span+'"/>':'';
+    return'<w:tc><w:tcPr>'+sp+(shd||WHITE)+BDR_CELL+(imgMar?MIMG:MAR)+'</w:tcPr>'+content+'</w:tc>';
+  }
+
+  // Tables
+  function tblInfo(rows){
+    return'<w:tbl><w:tblPr><w:tblW w:w="10206" w:type="dxa"/><w:tblLayout w:type="fixed"/>'+TBL_BDR+'</w:tblPr>'
+      +'<w:tblGrid><w:gridCol w:w="'+SUB_W+'"/><w:gridCol w:w="'+COL_W+'"/><w:gridCol w:w="'+VAL_W+'"/></w:tblGrid>'
+      +rows+'</w:tbl>';
+  }
+  function tblImg(rows){
+    return'<w:tbl><w:tblPr><w:tblW w:w="10206" w:type="dxa"/>'+TBL_BDR+'</w:tblPr>'
+      +'<w:tblGrid><w:gridCol w:w="10206"/></w:tblGrid>'
+      +rows+'</w:tbl>';
+  }
+  function tblPhoto(rows){
+    return'<w:tbl><w:tblPr><w:tblW w:w="10206" w:type="dxa"/>'+TBL_BDR+'</w:tblPr>'
+      +'<w:tblGrid><w:gridCol w:w="'+LBL_W+'"/><w:gridCol w:w="'+PHO_W+'"/></w:tblGrid>'
+      +rows+'</w:tbl>';
+  }
+
+  function infoRow(label,value){
+    return row(
+      tcInfo(para(run(label,true)),ORANGE,SUB_W)+
+      tcInfo(para(run(':',true)),ORANGE,COL_W)+
+      tcInfo(para(run(value)),WHITE,VAL_W)
+    );
+  }
+  function hdrRow(text){
+    // keepNext ensures header stays with following image row
+    return'<w:tr><w:trPr><w:trHeight w:val="340" w:hRule="atLeast"/></w:trPr>'
+      +tc('<w:p><w:pPr><w:keepNext/><w:spacing w:after="0"/></w:pPr>'+run(text,true)+'</w:p>',ORANGE,null,false)
+      +'</w:tr>';
+  }
+  function imgRow(rId,dim){
+    var e=calcEmu(dim?dim.w:4,dim?dim.h:3,IMG_W,MAX_H);
+    return'<w:tr><w:trPr><w:trHeight w:val="340" w:hRule="atLeast"/><w:cantSplit/></w:trPr>'
+      +tc(rId?para(runImg(rId,e.w,e.h),'center'):para(run('N/A')),TRANS,null,true)
+      +'</w:tr>';
+  }
+  function photoRow(rId,lbl,dim,caption){
+    // Label cell: 20mm, centered
+    var labelCell='<w:tc><w:tcPr><w:tcW w:w="'+LBL_W+'" w:type="dxa"/>'+WHITE+BDR_CELL
+      +'<w:tcMar><w:top w:w="60" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:bottom w:w="60" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar>'
+      +'<w:vAlign w:val="center"/></w:tcPr>'
+      +'<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="0"/></w:pPr>'
+      +'<w:r><w:rPr><w:b/>'+F+'</w:rPr><w:t xml:space="preserve">'+xe(lbl)+'</w:t></w:r></w:p>'
+      +'</w:tc>';
+    // Photo cell: 160mm, photo + optional caption below
+    var e=calcEmu(dim?dim.w:4,dim?dim.h:3,PH_W,MAX_H);
+    var photoContent=rId?para(runImg(rId,e.w,e.h),'center'):para(run(''));
+    var capContent=caption?para(run(caption,false,FC)):'';
+    var photoCell='<w:tc><w:tcPr><w:tcW w:w="'+PHO_W+'" w:type="dxa"/>'+WHITE+BDR_CELL+MIMG+'</w:tcPr>'
+      +photoContent+capContent+'</w:tc>';
+    // cantSplit: keep label+photo+caption in same page
+    return'<w:tr><w:trPr><w:trHeight w:val="340" w:hRule="atLeast"/><w:cantSplit/></w:trPr>'+labelCell.replace('<w:tc>','<w:tc>').replace('</w:tc>','</w:tc>')+photoCell+'</w:tr>';
+  }
+
+  // ── Build document body ───────────────────────────────
+  var body='';
+
+  // Header image (preserve aspect ratio, max 170x30mm)
+  if(hdrRId){
+    var hdrDim=dims.hdr||{w:4,h:1};
+    var hdrE=calcEmu(hdrDim.w,hdrDim.h,HDR_W,HDR_H);
+    body+='<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:after="120"/></w:pPr>'+runImg(hdrRId,hdrE.w,hdrE.h)+'</w:p>';
+  }
+
+  // Key info table
+  body+=tblInfo(
+    infoRow('Record no.',defect.recordNo)
+    +infoRow('Date',defect.date)
+    +infoRow('Recorded by',defect.by)
+    +infoRow('Site',defect.siteName)
+    +infoRow('Project',defect.projName||'')
+    +infoRow('Location',defect.floor)
+    +(function(){
+      var lines=(defect.desc||'').split('\n');
+      var valContent='<w:p><w:pPr><w:spacing w:after="0"/></w:pPr>';
+      for(var li=0;li<lines.length;li++){
+        if(li>0)valContent+='<w:r><w:br/></w:r>';
+        valContent+='<w:r><w:rPr>'+F+'</w:rPr><w:t xml:space="preserve">'+xe(lines[li])+'</w:t></w:r>';
+      }
+      valContent+='</w:p>';
+      return'<w:tr><w:trPr>'+ROW_H+'</w:trPr>'
+        +tcInfo(para(run('Description',true)),ORANGE,SUB_W)
+        +tcInfo(para(run(':',true)),ORANGE,COL_W)
+        +'<w:tc><w:tcPr><w:tcW w:w="'+VAL_W+'" w:type="dxa"/>'+WHITE+BDR_CELL+MAR+'</w:tcPr>'+valContent+'</w:tc>'
+        +'</w:tr>';
+    })()
+  );
+
+  // Part 1 heading
+  // Force page break before Part 1
+  body+='<w:p><w:pPr><w:pageBreakBefore/><w:spacing w:before="0" w:after="120"/></w:pPr></w:p>';
+  body+='<w:p><w:pPr><w:keepNext/><w:spacing w:before="0" w:after="120"/></w:pPr><w:r><w:rPr><w:b/><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>Part 1 - Detail Location</w:t></w:r></w:p>';
+
+  // Direction label for enlarged plan
+  var dirs=['N','NE','E','SE','S','SW','W','NW'];
+  var dirLabel=dirs[Math.round((defect.arrowDir||0)/45)%8];
+
+  // Part 1 table (single column, full width)
+  body+=tblImg(
+    hdrRow('Key Plan')
+    +imgRow(kpRId,dims.kp)
+    +hdrRow('Enlarged Part Plan')
+    +imgRow(epRId,dims.ep)
+    +hdrRow('Indication Section / Elevation')
+    +imgRow(secRId,dims.sec)
+  );
+
+  // Part 2 heading
+  // Force page break before Part 2
+  body+='<w:p><w:pPr><w:pageBreakBefore/><w:spacing w:before="0" w:after="120"/></w:pPr></w:p>';
+  body+='<w:p><w:pPr><w:keepNext/><w:spacing w:before="0" w:after="120"/></w:pPr><w:r><w:rPr><w:b/><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos"/><w:sz w:val="28"/><w:szCs w:val="28"/></w:rPr><w:t>Part 2 - Photo Record</w:t></w:r></w:p>';
+
+  // Part 2 table
+  // Photo Record header - tblHeader makes it repeat on new pages
+  var photoRows='<w:tr><w:trPr><w:trHeight w:val="340" w:hRule="atLeast"/><w:tblHeader/></w:trPr>'
+    +tc('<w:p><w:pPr><w:keepNext/><w:spacing w:after="0"/></w:pPr>'+run('Photo Record',true)+'</w:p>',ORANGE,2,false)
+    +'</w:tr>';
+  var captions=defect.photoCaptions||[];
+  for(var pi=0;pi<phRIds.length;pi++){
+    photoRows+=photoRow(
+      phRIds[pi],
+      'Pic.'+String(pi+1).padStart(2,'0'),
+      dims.photos[pi]||null,
+      captions[pi]||''
+    );
+  }
+  body+=tblPhoto(photoRows);
+
+  // End of record
+  body+='<w:p><w:pPr><w:jc w:val="center"/><w:spacing w:before="120" w:after="0"/></w:pPr><w:r><w:rPr><w:b/>'+F+'</w:rPr><w:t>End of Record</w:t></w:r></w:p>';
+
+  // ── XML files ─────────────────────────────────────────
+  var docXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:document'
+    +' xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"'
+    +' xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+    +' xmlns:wp="http://schemas.openxmlformats.org/drawingml/2006/wordprocessingDrawing"'
+    +' xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+    +' xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml"'
+    +' mc:Ignorable="w14">'
+    +'<w:body>'+body
+    +'<w:sectPr>'
+    +'<w:headerReference w:type="default" r:id="rIdHdr"/>'
+    +'<w:headerReference w:type="first" r:id="rIdHdrFirst"/>'
+    +'<w:footerReference w:type="default" r:id="rIdFtr"/>'
+    +'<w:titlePg/>'
+    +'<w:pgSz w:w="11906" w:h="16838"/>'
+    +'<w:pgMar w:top="720" w:right="720" w:bottom="1080" w:left="720" w:header="708" w:footer="708" w:gutter="0"/>'
+    +'</w:sectPr></w:body></w:document>';
+
+  // Footer: P. X / Y right-aligned
+  var footerXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:ftr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:p><w:pPr><w:jc w:val="right"/><w:spacing w:after="0"/></w:pPr>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve">P. </w:t></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:instrText xml:space="preserve"> PAGE </w:instrText></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:fldChar w:fldCharType="end"/></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:t xml:space="preserve"> / </w:t></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:fldChar w:fldCharType="begin"/></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:instrText xml:space="preserve"> NUMPAGES </w:instrText></w:r>'
+    +'<w:r><w:rPr><w:rFonts w:ascii="Aptos" w:hAnsi="Aptos"/><w:sz w:val="20"/><w:szCs w:val="20"/></w:rPr><w:fldChar w:fldCharType="end"/></w:r>'
+    +'</w:p></w:ftr>';
+
+  // Running header: site+project left, record no right (from page 2)
+  var FH='<w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos"/><w:sz w:val="18"/><w:szCs w:val="18"/><w:color w:val="595959"/>';
+  var headerXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:p><w:pPr><w:spacing w:after="0"/>'
+    +'<w:tabs><w:tab w:val="right" w:pos="10206"/></w:tabs>'
+    +'</w:pPr>'
+    +'<w:r><w:rPr>'+FH+'</w:rPr><w:t xml:space="preserve">'+xe(defect.siteName)+(defect.projName?' · '+xe(defect.projName):'')+'</w:t></w:r>'
+    +'<w:r><w:rPr>'+FH+'</w:rPr><w:tab/></w:r>'
+    +'<w:r><w:rPr>'+FH+'</w:rPr><w:t>'+xe(defect.recordNo)+'</w:t></w:r>'
+    +'</w:p></w:hdr>';
+  // First page header: empty
+  var headerFirstXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:hdr xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:p><w:pPr><w:spacing w:after="0"/></w:pPr></w:p>'
+    +'</w:hdr>';
+
+  var wordRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rIdSty" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>'
+    +'<Relationship Id="rIdHdr" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header1.xml"/>'
+    +'<Relationship Id="rIdHdrFirst" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/header" Target="header2.xml"/>'
+    +'<Relationship Id="rIdSet" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/settings" Target="settings.xml"/>'
+    +'<Relationship Id="rIdFtr" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/footer" Target="footer1.xml"/>'
+    +imgReg.map(function(img){return'<Relationship Id="'+img.rId+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/image" Target="media/'+img.name+'"/>';}).join('')
+    +'</Relationships>';
+
+  var rootRels='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'
+    +'<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/>'
+    +'</Relationships>';
+
+  var seenExt={};
+  var imgDefs=imgReg.map(function(img){var ext=img.name.split('.').pop();if(seenExt[ext])return'';seenExt[ext]=true;return'<Default Extension="'+ext+'" ContentType="'+img.ct+'"/>';}).join('');
+  var ct='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+    +'<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>'
+    +'<Default Extension="xml" ContentType="application/xml"/>'+imgDefs
+    +'<Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/>'
+    +'<Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/>'
+    +'<Override PartName="/word/settings.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.settings+xml"/>'
+    +'<Override PartName="/word/footer1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.footer+xml"/>'
+    +'<Override PartName="/word/header1.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>'
+    +'<Override PartName="/word/header2.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.header+xml"/>'
+    +'</Types>';
+
+  var stylesXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:docDefaults><w:rPrDefault><w:rPr>'
+    +'<w:rFonts w:ascii="Aptos" w:hAnsi="Aptos" w:cs="Aptos"/>'
+    +'<w:sz w:val="24"/><w:szCs w:val="24"/>'
+    +'</w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
+
+  var settingsXml='<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+    +'<w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+    +'<w:defaultTabStop w:val="720"/></w:settings>';
+
+  // ── Build ZIP ─────────────────────────────────────────
+  var zipFiles=[];
+  function addFile(name,data){
+    var na=strToArr(name),crc=crc32(data);
+    var lh=new Uint8Array([0x50,0x4B,0x03,0x04,0x14,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]
+      .concat(u32(crc)).concat(u32(data.length)).concat(u32(data.length)).concat(u16(na.length)).concat([0x00,0x00]));
+    zipFiles.push({na:na,crc:crc,size:data.length,offset:0,lh:concat(lh,na),data:data});
+  }
+  addFile('[Content_Types].xml',xmlToArr(ct));
+  addFile('_rels/.rels',xmlToArr(rootRels));
+  addFile('word/document.xml',xmlToArr(docXml));
+  addFile('word/_rels/document.xml.rels',xmlToArr(wordRels));
+  addFile('word/styles.xml',xmlToArr(stylesXml));
+  addFile('word/settings.xml',xmlToArr(settingsXml));
+  addFile('word/footer1.xml',xmlToArr(footerXml));
+  addFile('word/header1.xml',xmlToArr(headerXml));
+  addFile('word/header2.xml',xmlToArr(headerFirstXml));
+  imgReg.forEach(function(img){addFile('word/media/'+img.name,img.data);});
+
+  var offset=0,lparts=[];
+  for(var fi=0;fi<zipFiles.length;fi++){zipFiles[fi].offset=offset;lparts.push(zipFiles[fi].lh,zipFiles[fi].data);offset+=zipFiles[fi].lh.length+zipFiles[fi].data.length;}
+  var cdParts=[],cdSize=0;
+  for(var ci=0;ci<zipFiles.length;ci++){
+    var f=zipFiles[ci];
+    var cd=new Uint8Array([0x50,0x4B,0x01,0x02,0x14,0x00,0x14,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]
+      .concat(u32(f.crc)).concat(u32(f.size)).concat(u32(f.size)).concat(u16(f.na.length))
+      .concat([0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00]).concat(u32(f.offset)));
+    cdParts.push(concat(cd,f.na));cdSize+=cd.length+f.na.length;
+  }
+  var eocd=new Uint8Array([0x50,0x4B,0x05,0x06,0x00,0x00,0x00,0x00]
+    .concat(u16(zipFiles.length)).concat(u16(zipFiles.length)).concat(u32(cdSize)).concat(u32(offset)).concat([0x00,0x00]));
+  var zip=concat.apply(null,lparts.concat(cdParts).concat([eocd]));
+  var blob=new Blob([zip],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+  var url=URL.createObjectURL(blob);
+  var a=document.createElement('a');a.href=url;a.download=defect.recordNo+'.docx';
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(function(){URL.revokeObjectURL(url);},2000);
+  toast('Report '+defect.recordNo+' downloaded!');
+  setTimeout(function(){openSite(ST.site.id,ST.site.name);},2000);
+}
+
+// ═══════════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════════
+IDB.open(function(err){
+  document.getElementById('overlay').style.display='none';
+  if(err){alert('IndexedDB not available.\nPlease use Chrome or Edge browser.');return;}
+  if(!localStorage.getItem('inspector'))openSettings();
+  else renderSites();
+});
+</script>
+</body>
+</html>
